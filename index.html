@@ -3,6 +3,23 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
+    <script>
+        const API_URL = "https://api.themoviedb.org/3";
+        const API_KEY = "9a5d0091d911bfa128e05a000c8649b8";
+        const API_TOKEN = "eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI5YTVkMDA5MWQ5MTFiZmExMjhlMDVhMDAwYzg2NDliOCIsInN1YiI6IjY1ZmIyYWZhMDQ3MzNmMDE3ZGU2ZGY4NiIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.RihNpqbk-PQHO__N4MccHuW9RJiPSMhJvE0Zz_UHESs";
+
+
+
+        async function getMovies(){
+            let response  = await fetch(`${API_URL}/trending/all/day?api_key=${API_KEY}`);
+            let movies = await response.json();
+            console.log(movies);
+        }
+
+        getMovies();
+
+
+    </script>
 </head>
 <body>
     <h1>hello</h1>
