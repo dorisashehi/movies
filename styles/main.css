@@ -12,9 +12,6 @@ body{
     max-width: 20vw;
     max-height: 100%;
 }
-.container-fluid.content{
-    padding:  125px 0px 125px;
-}
 .column.col-lg-3{
     padding: 8px;
 }
@@ -27,11 +24,15 @@ footer,.project-header{
     font-size: bold;
     color: white;
     text-transform: uppercase;
-
+    font-weight: bold;
+}
+.project-header{
+    font-size: 27px;
 }
 #movies{
-    max-width: 90vw;
+    max-width: 75vw;
     margin: auto;
+    padding:  125px 0px 0px 0px;
 }
 .footer{
     height: 100px;
@@ -49,4 +50,18 @@ button{
     font-weight: bold;
     border: none;
     margin-right: 10px;
+}
+#search-input{
+    width: 500px;
+    padding: 23px 16px;
+    background: rgb(20, 20, 20);
+    border: 2px solid white;
+    color: white;
+    font-weight: bold;
+}
+#search-button{
+    margin-left: 20px;
+}
+#pagination{
+    padding:  0px 0px 125px 0px;
 }
