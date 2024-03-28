@@ -1,53 +1,128 @@
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <script></script>
+    <head>
+        <!-- Required meta tags -->
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
-    <script>
+        <!-- Bootstrap CSS -->
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+        <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+
+        <title>Movies</title>
+
+        <link rel="stylesheet" href="./styles/main.css">
 
 
-        const API_URL = "https://api.themoviedb.org/3";
-        const API_KEY = "9a5d0091d911bfa128e05a000c8649b8";
-        const API_TOKEN = "eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI5YTVkMDA5MWQ5MTFiZmExMjhlMDVhMDAwYzg2NDliOCIsInN1YiI6IjY1ZmIyYWZhMDQ3MzNmMDE3ZGU2ZGY4NiIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.RihNpqbk-PQHO__N4MccHuW9RJiPSMhJvE0Zz_UHESs";
+        <script>
+
+            const API_URL = "https://api.themoviedb.org/3";
+            const API_KEY = "9a5d0091d911bfa128e05a000c8649b8";
+            const API_TOKEN = "eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI5YTVkMDA5MWQ5MTFiZmExMjhlMDVhMDAwYzg2NDliOCIsInN1YiI6IjY1ZmIyYWZhMDQ3MzNmMDE3ZGU2ZGY4NiIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.RihNpqbk-PQHO__N4MccHuW9RJiPSMhJvE0Zz_UHESs";
+            const IMG_URL = "https://image.tmdb.org/t/p/w300"
 
 
-        function getMovieContent(movie) {
-            return(
-                `
-                    <div>
-                        <div>${movie.overview}</div>
-                    </div>
-                `
-            )
-        }
+            // Wrap the code in a function to ensure it executes after the DOM is fully loaded
+            document.addEventListener("DOMContentLoaded", function() {
 
-        async function getMovies(){
+                var path = 'trending/all/day'
+                movies(path); //by default load trending
+
+                const footerLinks = document.querySelectorAll('.router-link');
+                    footerLinks.forEach(link => {
+                        link.addEventListener('click', function(event) {//add listener for each footer links
+                            event.preventDefault(); //prevent default action
+
+                            if(link.textContent === 'Trending') path = 'trending/all/day'
+                            if(link.textContent === 'Movies') path = 'movie/popular'
+                            if(link.textContent === 'TV Series') path = '/discover/tv'
+                            movies(path)
+                        });
+                    });
+            });
+
+            const movies = async (path) => { //function to take content based on the type of movie
 
             let movies = [];
 
-            try{
-                let movieElement = document.getElementById('movies');
-                console.log(movieElement);
-                let response  = await fetch(`${API_URL}/trending/all/day?api_key=${API_KEY}`);
-                let data = await response.json();
-                movies = data?.results
-                document.getElementById('movies').innerHTML = movies.map((movie) => getMovieContent(movie)).join(' ');
+                try {
+                    let movieElement = document.getElementById('movies');
+                    let response = await fetch(`${API_URL}/${path}?api_key=${API_KEY}`);
+                    let data = await response.json();
+                    movies = data?.results
+                    document.getElementById('movies').innerHTML = movies.map((movie) => movieContent(movie)).join(' ');
 
-            }catch(error){
-                console.error('Error fetching movies:', error);
+                } catch (error) {
+                    console.error('Error fetching movies:', error);
+                }
             }
 
 
-        }
-        getMovies();
+            const movieContent = (movie) => { //function to take the content of each movie
+
+                (movie.poster_path) ? image = `${IMG_URL}/${movie.poster_path}` : image = 'undefinied';
+
+                return(
+                    `
+                        <div class="column col-lg-3 col-md-6">
+                            <div class="card">
+                                <img class="card-img-top" src="${image}" alt="Card image cap">
+                                <div class="card-body">
+                                    <h5 class="card-title">${movie.title || movie.name}</h5>
+                                    <p class="card-text">${movie.first_air_date || movie.release_date}</p>
+                                </div>
+                            </div>
+                        </div>
+                    `
+                )
+            }
+
+        </script>
+    </head>
+    <body class="">
+        <div class="container-fluid project-header text-whit fixed-top">
+            <div class="row">
+                <div class="d-flex justify-content-center align-items-center w-100 text-uppercase p-3 header">
+                   Movies
+                   <i class="fas fa-video"></i>
+                </div>
+            </div>
+
+        </div>
+        <div class="container-fluid content">
+            <div class="row">
+                <div id="movies" class="d-flex col-lg-12 flex-lg-wrap justify-content-center"></div>
+            </div>
+            <div id="pagination" class="text-center mt-4">
+                <button id="prevPage" onclick="prevPage()">Prev</button>
+                <button id="nextPage" onclick="nextPage()">Next</button>
+            </div>
 
 
-    </script>
-</head>
-<body>
-    <h1>Movies</h1>
-    <div id="movies"></div>
-</body>
+        </div>
+
+        <footer class="text-center text-white fixed-bottom footer">
+            <div class="container text-center">
+                <div class="row align-items-start">
+                    <div class="col">
+                        <a href="/" class="router-link">Trending</a>
+                    </div>
+                    <div class="col">
+                        <a href="/movies" class="router-link">Movies</a>
+                    </div>
+                    <div class="col">
+                        <a href="/tv" class="router-link">TV Series</a>
+                    </div>
+                </div>
+            </div>
+        </footer>
+
+        <!-- Optional JavaScript -->
+        <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+        <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+
+    </body>
 </html>
