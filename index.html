@@ -22,6 +22,9 @@
             const API_TOKEN = "eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI5YTVkMDA5MWQ5MTFiZmExMjhlMDVhMDAwYzg2NDliOCIsInN1YiI6IjY1ZmIyYWZhMDQ3MzNmMDE3ZGU2ZGY4NiIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.RihNpqbk-PQHO__N4MccHuW9RJiPSMhJvE0Zz_UHESs";
             const IMG_URL = "https://image.tmdb.org/t/p/w300"
 
+            const itemsPerPage = 8;
+            let currentPage = 1;
+
 
             // Wrap the code in a function to ensure it executes after the DOM is fully loaded
             document.addEventListener("DOMContentLoaded", function() {
@@ -39,12 +42,18 @@
                             if(link.textContent === 'TV Series') path = '/discover/tv'
                             movies(path)
                         });
-                    });
+                });
+
+
+
+
+
+
             });
 
             const movies = async (path) => { //function to take content based on the type of movie
 
-            let movies = [];
+                let movies = [];
 
                 try {
                     let movieElement = document.getElementById('movies');
@@ -52,6 +61,12 @@
                     let data = await response.json();
                     movies = data?.results
                     document.getElementById('movies').innerHTML = movies.map((movie) => movieContent(movie)).join(' ');
+
+
+                    //show first page
+                    let currentPage = 1
+                    showPage(currentPage);
+
 
                 } catch (error) {
                     console.error('Error fetching movies:', error);
@@ -77,6 +92,39 @@
                     `
                 )
             }
+
+            function showPage(page) { //pagination
+
+                const startIndex = (page - 1) * itemsPerPage;
+                const endIndex = startIndex + itemsPerPage;
+
+                const movieColumns = document.querySelectorAll('.column');
+                movieColumns.forEach((movie, index) => {
+
+                    if(index >= startIndex && index < endIndex){
+                        movie.style.display = 'block'
+                    }else {
+                        movie.style.display = 'none'
+                    }
+                })
+
+            }
+
+            const nextPage = () => { //next functionality added
+                const totalPages = Math.ceil(document.querySelectorAll('.column').length / itemsPerPage);
+                if (currentPage < totalPages) {
+                    currentPage++;
+                    showPage(currentPage);
+                }
+            }
+
+            const prevPage = () => { //prev button functionality added
+                if (currentPage > 1) {
+                    currentPage--;
+                    showPage(currentPage);
+                }
+            }
+
 
         </script>
     </head>
