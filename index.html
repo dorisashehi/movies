@@ -31,122 +31,115 @@
             // Wrap the code in a function to ensure it executes after the DOM is fully loaded
             document.addEventListener("DOMContentLoaded", function() {
 
-                var path = 'trending/all/day'
-                movies('Trending'); //by default load trending
-
+                fetchAndDisplayMovies('Trending');
                 const footerLinks = document.querySelectorAll('.router-link');
                     footerLinks.forEach(link => {
                         link.addEventListener('click', function(event) {//add listener for each footer links
                             event.preventDefault(); //prevent default action
-                            movies(link.textContent)
+                            fetchAndDisplayMovies(link.textContent)
                         });
                 });
 
             });
 
-            const movies = async (title ,query = '') => { //function to take content based on the type of movie
-
-                let movies = [];
-                let link = title.trim().toLowerCase();
-
+            // Function to fetch and display movies
+            function fetchAndDisplayMovies(title, query = '') {
                 try {
-                    const movieElement = document.getElementById('movies');
+                    // Determine the API path based on the title
+                    let path = getPathByTitle(title, query);
                     const movieContainer = document.getElementById('movies');
-                    const pagination  = document.getElementById('pagination')
 
-                    if(link === 'trending') path = 'trending/all/day'
-                    if(link === 'movies') path = 'movie/popular'
-                    if(link === 'tv series') path = '/discover/tv'
-                    if(link === 'searchresults') { path = '/search/multi'; var query = `&query=${query}` }
+                    if(path){
+                        // Fetch movies data from the API
+                        fetch(`${API_URL}/${path}?api_key=${API_KEY}&query=${query}`)
+                            .then(response => response.json())
+                            .then(data => {
+                                let movies = data.results;
 
-                    let response = await fetch(`${API_URL}/${path}?api_key=${API_KEY}${query}`);
-                    let data = await response.json();
-                    movies = data?.results
+                                // Display movies based on the title
+                                movieContainer.innerHTML = displayMovies(title, movies);
 
-                    if( title === 'Search') {
-                        pagination.style.display = 'none'
-                        movieContainer.innerHTML = getSearchContent();
-                        searchMovie()
+                                // Show the first page
+                                showPage(currentPage);
+                            })
+                            .catch(error => console.error('Error fetching movies:', error));
                     }else{
-                        pagination.style.display = 'block'
-                        movieContainer.innerHTML = movies.map((movie) => movieContent(movie)).join(' ');
+                        displayPagination(false)
+                        movieContainer.innerHTML = getSearchContent();
+                        setupSearchHandler();
                     }
-
-                    //show first page
-                    itemsPerPage = 8;
-                    currentPage = 1;
-                    showPage(currentPage);
-
-
                 } catch (error) {
                     console.error('Error fetching movies:', error);
                 }
             }
 
 
-            const movieContent = (movie) => { //function to take the content of each movie
+            // Function to determine API path based on the title
+            function getPathByTitle(title, query) {
+                let path = '';
 
-                (movie.poster_path) ? image = `${IMG_URL}/${movie.poster_path}` : image = 'https://www.movienewz.com/img/films/poster-holder.jpg';
+                switch (title.toLowerCase().trim()) {
+                    case 'trending':
+                        path = 'trending/all/day';
+                        break;
+                    case 'movies':
+                        path = 'movie/popular';
+                        break;
+                    case 'tv series':
+                        path = 'discover/tv';
+                        break;
+                    case 'searchresults':
+                        path = 'search/multi';
+                        break;
+                    default:
+                        break;
+                }
 
-                return(
-                    `
-                        <div class="column col-lg-3 col-md-6">
-                            <div class="card">
-                                <img class="card-img-top" src="${image}" alt="Card image cap">
-                                <div class="card-body">
-                                    <h5 class="card-title">${movie.title || movie.name}</h5>
-                                    <p class="card-text">${movie.first_air_date || movie.release_date}</p>
-                                </div>
+                return path;
+            }
+            // Function to display movies based on the title
+            function displayMovies(title, movies) {
+                const movieContainer = document.getElementById('movies');
+                displayPagination(true)
+                return movies.map(movie => movieContent(movie)).join('');
+            }
+
+            function displayPagination(paginationstyle){
+                const pagination = document.getElementById('pagination');
+                if(paginationstyle === true) pagination.style.display = 'block';
+                if(paginationstyle === false) pagination.style.display = 'none';
+
+            }
+
+            // Function to create movie content HTML
+            function movieContent(movie) {
+                const imageUrl = movie.poster_path ? `${IMG_URL}/${movie.poster_path}` : 'https://www.movienewz.com/img/films/poster-holder.jpg';
+
+                return `
+                    <div class="column col-lg-3 col-md-6">
+                        <div class="card">
+                            <img class="card-img-top" src="${imageUrl}" alt="Card image cap">
+                            <div class="card-body">
+                                <h5 class="card-title">${movie.title || movie.name}</h5>
+                                <p class="card-text">${movie.first_air_date || movie.release_date}</p>
                             </div>
                         </div>
-                    `
-                )
+                    </div>`;
             }
 
-            const getSearchContent = () => {
-                return (
-                    `
-                    <div class="input-group justify-content-center">
-                        <div class="form-outline" data-mdb-input-init>
-                            <input id="search-input" type="search" id="form1" class="form-control" />
-                        </div>
-                        <button id="search-button" type="button" class="btn btn-primary">
-                            <i class="fas fa-search"></i>
-                        </button>
-                    </div>
-                `
-                )
-            }
-
-            const searchMovie = () => {
-
-                const searchButton = document.getElementById('search-button');
-                const searchInput = document.getElementById('search-input');
-                searchButton.addEventListener('click', () => {
-                    const query = searchInput.value;
-                    if(query) movies('searchResults' ,query)
-                });
-
-            }
-
-            function showPage(page) { //pagination
-
+            // Function to show a specific page of movies
+            function showPage(page) {
                 const startIndex = (page - 1) * itemsPerPage;
                 const endIndex = startIndex + itemsPerPage;
 
                 const movieColumns = document.querySelectorAll('.column');
                 movieColumns.forEach((movie, index) => {
-
-                    if(index >= startIndex && index < endIndex){
-                        movie.style.display = 'block'
-                    }else {
-                        movie.style.display = 'none'
-                    }
-                })
-
+                    movie.style.display = (index >= startIndex && index < endIndex) ? 'block' : 'none';
+                });
             }
 
-            const nextPage = () => { //next functionality added
+            // Function to navigate to the next page
+            function nextPage() {
                 const totalPages = Math.ceil(document.querySelectorAll('.column').length / itemsPerPage);
                 if (currentPage < totalPages) {
                     currentPage++;
@@ -154,13 +147,36 @@
                 }
             }
 
-            const prevPage = () => { //prev button functionality added
+            // Function to navigate to the previous page
+            function prevPage() {
                 if (currentPage > 1) {
                     currentPage--;
                     showPage(currentPage);
                 }
             }
 
+            // Function to create search input HTML
+            function getSearchContent() {
+                return `
+                    <div class="input-group justify-content-center">
+                        <div class="form-outline" data-mdb-input-init>
+                            <input id="search-input" type="search" id="form1" class="form-control" />
+                        </div>
+                        <button id="search-button" type="button" class="btn btn-primary">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>`;
+            }
+
+            // Function to set up search handler
+            function setupSearchHandler() {
+                const searchButton = document.getElementById('search-button');
+                const searchInput = document.getElementById('search-input');
+                searchButton.addEventListener('click', () => {
+                    const query = searchInput.value.trim();
+                    if (query) fetchAndDisplayMovies('searchresults', query);
+                });
+            }
 
         </script>
     </head>
