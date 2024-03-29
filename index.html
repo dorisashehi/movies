@@ -13,6 +13,8 @@
         <title>Movies</title>
 
         <link rel="stylesheet" href="./styles/main.css">
+        <link rel="stylesheet" href="./js/style.js">
+
 
 
         <script>
@@ -45,16 +47,17 @@
             const movies = async (title ,query = '') => { //function to take content based on the type of movie
 
                 let movies = [];
+                let link = title.trim().toLowerCase();
 
                 try {
                     const movieElement = document.getElementById('movies');
                     const movieContainer = document.getElementById('movies');
                     const pagination  = document.getElementById('pagination')
 
-                    if(title.trim().toLowerCase() === 'trending') path = 'trending/all/day'
-                    if(title.trim().toLowerCase() === 'movies') path = 'movie/popular'
-                    if(title.trim().toLowerCase() === 'tv series') path = '/discover/tv'
-                    if(title.trim().toLowerCase() === 'searchresults') { path = '/search/multi'; var query = `&query=${query}` }
+                    if(link === 'trending') path = 'trending/all/day'
+                    if(link === 'movies') path = 'movie/popular'
+                    if(link === 'tv series') path = '/discover/tv'
+                    if(link === 'searchresults') { path = '/search/multi'; var query = `&query=${query}` }
 
                     let response = await fetch(`${API_URL}/${path}?api_key=${API_KEY}${query}`);
                     let data = await response.json();

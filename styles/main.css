@@ -65,3 +65,8 @@ button{
 #pagination{
     padding:  0px 0px 125px 0px;
 }
+.card:hover{
+    background-color: white;
+    color: #000002;
+    border-color: white;
+}
