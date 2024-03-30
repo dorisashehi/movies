@@ -52,17 +52,43 @@
                     if(path){
                         // Fetch movies data from the API
                         fetch(`${API_URL}/${path}?api_key=${API_KEY}&query=${query}`)
-                            .then(response => response.json())
-                            .then(data => {
-                                let movies = data.results;
+                        .then(response => response.json())
+                        .then(data => {
+                            let movies = data.results;
 
-                                // Display movies based on the title
-                                movieContainer.innerHTML = displayMovies(title, movies);
+                            // Display movies based on the title
+                            movieContainer.innerHTML = displayMovies(title, movies);
 
-                                // Show the first page
-                                showPage(currentPage);
+                            // Show the first page
+                            showPage(currentPage);
+
+                            const columns = document.querySelectorAll('.column');
+                            columns.forEach((column) => {
+                                column.addEventListener('click', function(event) {
+                                    displayPagination(false)
+                                    let movie = movies.find((movie) => movie.id == column.id)
+                                    movieContainer.innerHTML = `
+
+                                        <div class="row w-75 text-white movie-details">
+                                            <div class="col-md-6 how-img">
+                                                <img src="${IMG_URL}/${movie.poster_path}" class="img-fluid" alt=""/>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <h4>${movie.title || movie.name}</h4>
+                                                <span>${movie.first_air_date || movie.release_date}</span>
+                                                <p class="text-muted">${movie.overview}</p>
+                                            </div>
+                                        </div>
+
+                                    `
+                                });
                             })
-                            .catch(error => console.error('Error fetching movies:', error));
+
+
+                        })
+                        .catch(error => console.error('Error fetching movies:', error));
+
+
                     }else{
                         displayPagination(false)
                         movieContainer.innerHTML = getSearchContent();
@@ -116,7 +142,7 @@
                 const imageUrl = movie.poster_path ? `${IMG_URL}/${movie.poster_path}` : 'https://www.movienewz.com/img/films/poster-holder.jpg';
 
                 return `
-                    <div class="column col-lg-3 col-md-6">
+                    <div class="column col-lg-3 col-md-6" id="${movie.id}">
                         <div class="card">
                             <img class="card-img-top" src="${imageUrl}" alt="Card image cap">
                             <div class="card-body">

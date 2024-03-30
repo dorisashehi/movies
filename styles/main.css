@@ -1,7 +1,7 @@
 body{
     background-color: #000002;
 }
-.card{
+.card, .movie-details{
     color:white;
     background: #000002;
     margin-bottom: 3%;
@@ -9,8 +9,11 @@ body{
     background-color: #222427;
     text-align: center;
     border-radius: 0.5em;
+}
+.card{
     max-width: 20vw;
     max-height: 100%;
+
 }
 .column.col-lg-3{
     padding: 8px;
@@ -32,7 +35,7 @@ footer,.project-header{
 #movies{
     max-width: 75vw;
     margin: auto;
-    padding:  125px 0px 0px 0px;
+    padding:  125px 0px 125px 0px;
 }
 .footer{
     height: 100px;
