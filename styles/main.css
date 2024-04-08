@@ -73,3 +73,6 @@ button{
     color: #000002;
     border-color: white;
 }
+.card-body{
+    height: 150px;
+}
